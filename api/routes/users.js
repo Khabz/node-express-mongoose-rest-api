@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const validationMiddleware = require("../middlewares/validationMiddleware")
 
 const User = require("../models/User");
 /**
@@ -11,7 +12,7 @@ const User = require("../models/User");
  * @description Register a user account
  * @access public
  */
-router.post("/register", (req, res) => {
+router.post("/register", validationMiddleware.register, (req, res) => {
     let { first_name, last_name, email, phone, password } = req.body;
     try {
         bcrypt.hash(password, 10, (err, hash) => {
@@ -50,7 +51,7 @@ router.post("/register", (req, res) => {
  * @description Login to account
  * @access public
  */
-router.post("/login", (req, res) => {
+router.post("/login", validationMiddleware.login, (req, res) => {
     let { email, password } = req.body;
     try {
         User.findOne({ email: email }).then((user) => {
@@ -97,7 +98,6 @@ router.post("/login", (req, res) => {
  */
 router.get('/profile', passport.authenticate('jwt', { session: false }), (req, res) => {
     let user = req.user;
-    console.log(req);
     res.status(200).json({
         user
     })
